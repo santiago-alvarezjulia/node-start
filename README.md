@@ -55,7 +55,7 @@ Se agrega el script dev a package.json.
 - `nodemon` reinicia automáticamente el servidor al detectar cambios en los archivos.
 - Es útil para desarrollo, pero **no optimizado para producción**, porque `ts-node` es más lento que ejecutar código compilado.
 
-**Ejecutar en desarrollo:**
+**Levantar para desarrollo:**
 
 ```sh
 npm run dev
@@ -70,11 +70,11 @@ Se agregan los scripts build y start a package.json.
 "start": "node dist/server.js"
 ```
 
-- `node` compila TypeScript (`.ts`) a JavaScript (`.js`) en la carpeta `dist/`.
+- `tsc` compila TypeScript (`.ts`) a JavaScript (`.js`) en la carpeta `dist/`, según lo definido en `tsconfig.json`.
 - `start` ejecuta el código compilado con `node`, mejorando rendimiento y estabilidad.
 - No es útil para desarrollo ya que no recarga automáticamente los cambios (tienes que recompilar manualmente con npm run build).
 
-**Ejecutar en producción:**
+**Levantar para producción:**
 
 ```sh
 npm run build
