@@ -8,18 +8,20 @@ Este proyecto es un servidor web basado en **Node.js**, utilizando **Express** y
 
 ### **1️⃣ Instalación de Node.js con NVM**
 
-Para manejar múltiples versiones de Node.js, se utilizó **NVM (Node Version Manager)**.
+Para manejar múltiples versiones de Node.js utilizar **NVM (Node Version Manager)**.
 
 - **Instalar y usar Node.js**
 
   ```sh
-  nvm install 18
-  nvm use 18
+  nvm install lts
+  nvm use lts
   ```
+
+Se instalará la versión LTS de Node y luego le indicaremos a nvm que la usaremos.
 
 ### **2️⃣ Instalación de dependencias con npm**
 
-Una vez instalado Node.js, se instalaron los paquetes del proyecto con:
+Una vez instalado Node.js, se instalan los paquetes del proyecto con:
 
 ```sh
 npm install
@@ -27,7 +29,7 @@ npm install
 
 ---
 
-## 📦 Dependencias y por qué se agregaron
+## 📦 Dependencias ya instaladas y por qué se agregaron
 
 | Paquete            | Propósito                                                                     |
 | ------------------ | ----------------------------------------------------------------------------- |
@@ -49,9 +51,9 @@ Se agrega el script dev a package.json.
 "dev": "nodemon --ext ts --exec ts-node src/server.ts"
 ```
 
-- Ejecuta el servidor con ``, sin necesidad de compilar.
-- `` reinicia automáticamente el servidor al detectar cambios en los archivos.
-- Es útil para desarrollo, pero **no optimizado para producción**, porque ts-node es más lento que ejecutar código compilado.
+- Ejecuta el servidor con `ts-node`, sin necesidad de compilar.
+- `nodemon` reinicia automáticamente el servidor al detectar cambios en los archivos.
+- Es útil para desarrollo, pero **no optimizado para producción**, porque `ts-node` es más lento que ejecutar código compilado.
 
 **Ejecutar en desarrollo:**
 
@@ -68,8 +70,8 @@ Se agregan los scripts build y start a package.json.
 "start": "node dist/server.js"
 ```
 
-- `` compila TypeScript (`.ts`) a JavaScript (`.js`) en la carpeta `dist/`.
-- `` ejecuta el código compilado con `node`, mejorando rendimiento y estabilidad.
+- `node` compila TypeScript (`.ts`) a JavaScript (`.js`) en la carpeta `dist/`.
+- `start` ejecuta el código compilado con `node`, mejorando rendimiento y estabilidad.
 - No es útil para desarrollo ya que no recarga automáticamente los cambios (tienes que recompilar manualmente con npm run build).
 
 **Ejecutar en producción:**
@@ -87,7 +89,6 @@ npm start
 📂 proyecto/
  ├── 📂 src/
  │   ├── server.ts  # Código principal del servidor
- │   ├── routes.ts  # Rutas de Express
  ├── 📂 dist/        # Código compilado (generado tras `npm run build`)
  ├── package.json   # Configuración del proyecto y dependencias
  ├── tsconfig.json  # Configuración de TypeScript
@@ -105,5 +106,3 @@ npm install --omit=dev  # Instalar solo dependencias de producción
 npm run build
 npm start
 ```
-
-¡Listo! Ahora el servidor está corriendo de manera eficiente. 🚀
