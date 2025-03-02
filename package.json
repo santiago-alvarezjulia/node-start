@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=develop nodemon --exec ts-node src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "start:staging": "cross-env NODE_ENV=staging node -r dotenv/config dist/server.js dotenv_config_path=.env.staging",
     "start:prod": "cross-env NODE_ENV=production node -r dotenv/config dist/server.js dotenv_config_path=.env.production"
