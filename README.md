@@ -106,3 +106,7 @@ npm install --omit=dev  # Instalar solo dependencias de producción
 npm run build
 npm start
 ```
+
+## Uso en proyectos
+
+Tener en cuenta que en package.json hay referencias a la url del repositorio original del template, modificarlo en cada caso para que coincida con la url del proyecto real.
