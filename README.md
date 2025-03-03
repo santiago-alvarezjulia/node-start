@@ -122,3 +122,80 @@ Los scripts en `package.json` permiten ejecutar el servidor en diferentes entorn
 ## Uso en proyectos
 
 Tener en cuenta que en package.json hay referencias a la url del repositorio original del template, modificarlo en cada caso para que coincida con la url del proyecto real.
+
+# Ejecutar el Proyecto en Diferentes Ambientes con Docker
+
+Este proyecto utiliza Docker para encapsular la aplicación en diferentes entornos de ejecución. Se han definido **Dockerfile** y **docker-compose** específicos para cada ambiente: **development, staging y production**.
+
+---
+
+## 1️⃣ **Ambiente de Desarrollo**
+Este entorno permite desarrollar la aplicación con recarga automática de cambios. También levanta una base de datos MongoDB para desarrollo.
+
+### 📌 **Levantar el entorno de desarrollo**
+```sh
+docker-compose -f docker-compose.development.yml up --build
+```
+
+### 🔹 **Explicación**
+- Se construye la imagen desde `Dockerfile.dev`.
+- Se define `NODE_ENV=development`.
+- Se ejecuta `npm run dev` dentro del contenedor.
+- Se levanta un servicio de MongoDB junto con la aplicación.
+
+---
+
+## 2️⃣ **Ambiente de Staging**
+Este entorno simula un entorno de producción con las configuraciones necesarias, pero sin ser el entorno final de despliegue.
+
+### 📌 **Levantar el entorno de staging**
+```sh
+docker-compose -f docker-compose.staging.yml up --build -d
+```
+
+### 🔹 **Explicación**
+- Se construye la imagen desde `Dockerfile.staging`.
+- Se define `NODE_ENV=staging`.
+- Se ejecuta `npm run staging`, lo que primero compila TypeScript a JavaScript (`npm run build`).
+- No se levanta MongoDB porque se asume que la base de datos está en un servicio externo.
+- Se usa `-d` para correr los contenedores en segundo plano.
+
+---
+
+## 3️⃣ **Ambiente de Producción**
+Este entorno está optimizado para ejecución en servidores y servicios en la nube.
+
+### 📌 **Levantar el entorno de producción**
+```sh
+docker-compose -f docker-compose.production.yml up --build -d
+```
+
+### 🔹 **Explicación**
+- Se construye la imagen desde `Dockerfile.production`.
+- Se define `NODE_ENV=production`.
+- Se ejecuta `npm run production`, que primero compila el código (`npm run build`).
+- No se levanta MongoDB ya que la aplicación debería conectarse a una base de datos externa.
+- Se ejecuta en modo **detached** (`-d`).
+
+---
+
+## 4️⃣ **Parar los Contenedores**
+Para detener y eliminar los contenedores de cualquier ambiente:
+```sh
+docker-compose -f docker-compose.<ambiente>.yml down
+```
+Ejemplo para **staging**:
+```sh
+docker-compose -f docker-compose.staging.yml down
+```
+
+---
+
+## 🔥 **Consideraciones Finales**
+✔ **El entorno de desarrollo** incluye MongoDB y recarga automática.
+✔ **Los entornos de staging y producción** no incluyen MongoDB; se espera que usen una base de datos externa.
+✔ **Cada ambiente tiene su propio Dockerfile y docker-compose** para mayor flexibilidad y control.
+
+---
+
+Con estos comandos, puedes levantar y probar cada ambiente en tu máquina local de forma rápida y sencilla. 🚀

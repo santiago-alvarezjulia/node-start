@@ -1,0 +1,25 @@
+services:
+  app:
+    build: # Construcción de la imagen
+      context: . 
+      dockerfile: Dockerfile.development # Archivo de configuración de la imagen
+    container_name: node_start_development
+    env_file: # Archivo de variables de entorno
+      - .env.development
+    ports: # Mapeo de puertos de la máquina host al contenedor
+      - "3000:3000"
+    depends_on:
+      - mongo
+    volumes:
+      - .:/usr/src/app  # Para reflejar cambios en el código sin reconstruir la imagen
+
+  mongo:
+    image: mongo:latest
+    container_name: node_start_mongo_development
+    ports:
+      - "27017:27017"
+    volumes: # Mapeo de volúmenes
+      - mongo_data:/data/db
+
+volumes: # Definición de volúmenes
+  mongo_data:

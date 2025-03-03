@@ -1,0 +1,38 @@
+# Etapa 1: Compilación de TypeScript
+FROM node:22.14.0 AS builder
+
+# Configurar el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copiar package.json y package-lock.json para instalar dependencias primero
+COPY package*.json ./
+
+# Instalar dependencias (solo las de produccion)
+RUN npm install --only=production
+
+# Copiar el código fuente de la aplicación
+COPY . .
+
+# Genera los archivos en /app/dist (Compilación de TypeScript)
+RUN npm run build
+
+# Etapa 2: Imagen final
+FROM node:22.14.0
+
+# Configurar el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copiar solo los archivos necesarios para instalar dependencias
+COPY --from=builder /app/package*.json ./
+
+# Solo instala dependencias necesarias para producción
+RUN npm install --only=production 
+
+# Copia solo el código compilado de TypeScript
+COPY --from=builder /app/dist ./dist  
+
+# Define el entorno de ejecución como produccion
+ENV NODE_ENV=production
+
+# Script para iniciar la aplicación de producción definido en package.json
+CMD ["npm", "run", "production"]

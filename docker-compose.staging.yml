@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging # Archivo de configuración de la imagen
+    container_name: node_start_staging
+    env_file: # Archivo de variables de entorno
+      - .env.staging
+    ports: # Mapeo de puertos de la máquina host al contenedor
+      - "4000:4000"

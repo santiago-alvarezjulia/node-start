@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production # Archivo de configuración de la imagen
+    container_name: node_start_production
+    env_file: # Archivo de variables de entorno
+      - .env.production
+    ports: # Mapeo de puertos de la máquina host al contenedor
+      - "8080:8080"
