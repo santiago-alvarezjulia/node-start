@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
-    "start:staging": "cross-env NODE_ENV=staging node -r dotenv/config dist/server.js dotenv_config_path=.env.staging",
-    "start:prod": "cross-env NODE_ENV=production node -r dotenv/config dist/server.js dotenv_config_path=.env.production"
+    "staging": "node -r dotenv/config dist/server.js dotenv_config_path=.env.staging",
+    "production": "node -r dotenv/config dist/server.js dotenv_config_path=.env.production"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.8",
-    "cross-env": "^7.0.3",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
