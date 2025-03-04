@@ -6,6 +6,6 @@ dotenv.config({ path: envFile })
 
 export default {
   port: process.env.PORT || 3000,
-  dbUrl: process.env.DB_URL || '',
+  mongoUrl: process.env.MONGO_URL || '',
   env: process.env.NODE_ENV || 'development',
 }
