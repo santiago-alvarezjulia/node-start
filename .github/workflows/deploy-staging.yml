@@ -13,8 +13,14 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
+      - name: Create .env file
+        run: |
+          echo "PORT=${{ secrets.STAGING_PORT }}" > .env.staging
+          echo "NODE_ENV=${{ secrets.STAGING_NODE_ENV }}" >> .env.staging
+          echo "MONGO_URL=${{ secrets.STAGING_MONGO_URL }}" >> .env.staging
+
       - name: Loguearse en Docker Hub (o GitHub Container Registry)
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.STAGING_DOCKER_PASSWORD }}" | docker login -u "${{ secrets.STAGING_DOCKER_USERNAME }}" --password-stdin
 
       - name: Construir la imagen Docker
         run: |
@@ -34,7 +40,7 @@ jobs:
         with:
           host: ${{ secrets.STAGING_SERVER_IP }}
           username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           source: "docker-compose.staging.yml"
           target: "/ruta/donde/esta/docker-compose"
 
@@ -43,10 +49,10 @@ jobs:
         with:
           host: ${{ secrets.STAGING_SERVER_IP }}
           username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
             cd /ruta/donde/esta/docker-compose
-            docker pull usuario/app-staging:latest
+            docker pull santiagoaj/node_start:latest
             docker-compose -f docker-compose.staging.yml down
             docker-compose -f docker-compose.staging.yml up -d
             docker image prune -f  # Elimina imágenes antiguas
