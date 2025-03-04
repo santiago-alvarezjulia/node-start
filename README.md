@@ -6,25 +6,31 @@ Este proyecto es un servidor web basado en **Node.js**, utilizando **Express** y
 
 ## 📌 Instalación
 
-### **1️⃣ Instalación de Node.js con NVM**
+### **1️⃣ Instalación de NPM con NVM**
 
-Para manejar múltiples versiones de Node.js utilizar **NVM (Node Version Manager)**.
+Para instalar paquetes sin Docker (ejemplo: npm install antes de hacer un docker build), podemos utilizar **NVM (Node Version Manager)**.
 
-- **Instalar y usar Node.js**
+- **Instalar y usar NPM**
 
   ```sh
   nvm install lts
   nvm use lts
   ```
 
-Se instalará la versión LTS de Node y luego le indicaremos a nvm que la usaremos.
+Ademas se instalará la versión LTS de Node, que en nuestro caso no es necesaria ya que usaremos docker (en el Dockerfile especificamos la version de node que usaremos).
 
 ### **2️⃣ Instalación de dependencias con npm**
 
-Una vez instalado Node.js, se instalan los paquetes del proyecto con:
+Una vez instalado NPM, se instalan los paquetes del proyecto con:
 
 ```sh
-npm install
+npm install <paquete>
+```
+
+Para el caso de dependencias que solo deban usarse en desarrollo (como ts-node y nodemon), instalarlas de la siguiente manera:
+
+```sh
+npm install --save-dev <paquete>
 ```
 
 ---
@@ -39,6 +45,8 @@ npm install
 | **nodemon**        | Reinicia automáticamente el servidor cuando hay cambios en los archivos.      |
 | **@types/express** | Proporciona tipado de TypeScript para Express.                                |
 | **dotenv**         | Carga variables de entorno desde un archivo .env file en process.env.         |
+| **mongoose**       | MongoDB object modeling para node.js                                          |
+| **prom-client**    | Cliente de Prometheus para node.js                                            |
 
 ---
 
@@ -56,30 +64,47 @@ Ejemplo de `.env.development` (Desarrollo, en el repo):
 ```env
 PORT=3000
 NODE_ENV=development
-DB_URL=mongodb://mongo:27017/mydatabase
+MONGO_URL=mongodb://mongo:27017/mydatabase
 ```
 
 Ejemplo de `.env.staging` (Staging, fuera del repo):
 ```env
 PORT=4000
 NODE_ENV=staging
-DB_URL=mongodb+srv://user:password@mi-mongo-host.mongodb.net/mi_basededatos
+MONGO_URL=mongodb+srv://user:password@mi-mongo-host.mongodb.net/mi_basededatos
 ```
 
 Ejemplo de `.env.production` (Producción, fuera del repo):
 ```env
 PORT=8080
 NODE_ENV=production
-DB_URL=mongodb+srv://user:password@mi-mongo-host.mongodb.net/mi_basededatos
+MONGO_URL=mongodb+srv://user:password@mi-mongo-host.mongodb.net/mi_basededatos
 ```
 
 Para evitar subir archivos sensibles, se agregó lo siguiente al `.gitignore`:
 ```
+.env
 .env.staging
 .env.production
 ```
 
-Tener en cuenta que si se quiere levantar localmente el ambiente de staging o production, deben crearse estos archivos en la raíz del proyecto, en la máquina local.
+Tener en cuenta que para el caso de development, el .env.development se encuentra en el repositorio ya que no contiene información sensible, pero para staging y production no podemos hacer lo mismo, deben estar en el entorno donde se ejecute su respectivo docker-compose. Mas adelante veremos como se configura esto usando Github Actions.
+
+Estos archivos que vimos sirven para definir las variables de entorno que necesita el web server y nos ayuda definirlas así para poder levantarlas de manera amigable con dotenv, pero existen otras variables de entorno para el resto de los servicios que corren en paralelo al web server: Grafana y MongoExpress.
+Deben estar definidas las siguientes variables de entorno en el sistema al correr esos servicios:
+
+```env
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin
+ME_URL=mongodb://mongo:27017
+ME_ADMIN_USER=admin
+ME_ADMIN_PASSWORD=admin
+```
+
+Donde las primeras dos son el usuario y contraseña utilizados para ingresar a Grafana. Luego tenemos ME_URL que es la url del mongo y luego el usuario y contraseña utilizados para ingresar a MongoExpress.
+Se recomienda crearse un archivo .env para almacenarlas (veremos luego que se hacer esto mismo en Github Actions)
+
+---
 
 ## Scripts para ejecutar el servidor
 
@@ -95,12 +120,13 @@ Los scripts en `package.json` permiten ejecutar el servidor en diferentes entorn
 ```
 
 ### Comandos disponibles:
-- **Desarrollo:** `npm run dev` → Usa `nodemon` y `ts-node`. `nodemon` reinicia automáticamente el servidor al detectar cambios en los archivos. `ts-node` ejecuta el servidor sin necesidad de compilar. Es útil para desarrollo, pero **no optimizado para producción**, porque `ts-node` es más lento que ejecutar código compilado.
-- **Compilar TypeScript:** `npm run build` → compila TypeScript (`.ts`) a JavaScript (`.js`) en la carpeta `dist/`, según lo definido en `tsconfig.json`.
-- **Staging:** `npm run staging` (**requiere llamada previa a build**) → levanta el server con el archivo de ambiente .env.staging
-- **Producción:** `npm run production` (**requiere llamada previa a build**) →  levanta el server con el archivo de ambiente .env.prod
 
-`staging` y `production` ejecutan el código compilado con `node`, mejorando rendimiento y estabilidad. No es útil para desarrollo ya que no recarga automáticamente los cambios (tienes que recompilar manualmente con npm run build).
+- **Desarrollo:** `npm run dev` → Usa `nodemon` y `ts-node`. `nodemon` reinicia automáticamente el web server al detectar cambios en los archivos .ts dentro de src. `ts-node` ejecuta el web server sin necesidad de compilar. Es útil para desarrollo, pero **no optimizado para producción**, porque `ts-node` es más lento que ejecutar código compilado.
+- **Compilar TypeScript:** `npm run build` → compila TypeScript (`.ts`) a JavaScript (`.js`) y almacena los .js en la carpeta `dist/`, según lo definido en `tsconfig.json`.
+- **Staging:** `npm run staging` (**requiere llamada previa a build**) → levanta el web server con el archivo de ambiente .env.staging
+- **Producción:** `npm run production` (**requiere llamada previa a build**) →  levanta el web server con el archivo de ambiente .env.prod
+
+`staging` y `production` ejecutan el código compilado con `node`, mejorando rendimiento y estabilidad. No es útil para desarrollo ya que no recarga automáticamente los cambios (habría que recompilar manualmente con npm run build).
 
 ---
 
@@ -108,13 +134,19 @@ Los scripts en `package.json` permiten ejecutar el servidor en diferentes entorn
 
 ```
 📂 proyecto/
+ ├── 📂 .github/workflows
+ │   ├── deploy-*.yml          # Script de deploy para correr en GitHub Actions segun el ambiente (development no tiene deploy)
+ ├── 📂 dist/                 # Código compilado en .js (generado tras `npm run build`)
  ├── 📂 src/
- │   ├── server.ts  # Código principal del servidor
- ├── 📂 dist/       # Código compilado (generado tras `npm run build`)
- ├── package.json   # Configuración del proyecto y dependencias
- ├── tsconfig.json  # Configuración de TypeScript
- ├── README.md      # Este archivo 📄
- ├── .env           # Variables de ambiente para dev
+ │   ├── server.ts             # Código principal del web server
+ ├── nodemon.json              # Configuración de NodeMon 
+ ├── .env                      # Variables de entorno para Grafana y MongoExpress
+ ├── docker-compose.*.yml      # Compose para levantar los containers necesarios según el ambiente 
+ ├── Dockerfile.*              # Dockerfile con la definición de como generar la imagen del web server según el ambiente
+ ├── package*.json             # Configuración del proyecto y dependencias
+ ├── prometheus.yml            # Configuración de Prometheus
+ ├── README.md                 # Este archivo 📄
+ ├── tsconfig.json             # Configuración de TypeScript 
 ```
 
 ---

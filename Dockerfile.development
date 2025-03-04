@@ -13,7 +13,7 @@ RUN npm install
 # Copiar el código fuente de la aplicación
 COPY . .
 
-# Exponer el puerto en el que corre la app (por defecto en Express suele ser 3000)
+# Exponer el puerto en el que corre la app
 EXPOSE 3000
 
 # Definir variables de entorno por defecto
