@@ -15,7 +15,6 @@ services:
 
   mongo:
     image: mongo:latest
-    container_name: node_start_mongo_development
     ports:
       - "27017:27017"
     volumes: # Mapeo de volúmenes
