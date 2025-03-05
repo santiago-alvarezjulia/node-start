@@ -19,7 +19,7 @@ jobs:
           echo "NODE_ENV=${{ secrets.STAGING_NODE_ENV }}" >> .env.staging
           echo "MONGO_URL=${{ secrets.STAGING_MONGO_URL }}" >> .env.staging
 
-      - name: Loguearse en Docker Hub (o GitHub Container Registry)
+      - name: Loguearse en Docker Hub
         run: echo "${{ secrets.STAGING_DOCKER_PASSWORD }}" | docker login -u "${{ secrets.STAGING_DOCKER_USERNAME }}" --password-stdin
 
       - name: Construir la imagen Docker
@@ -39,9 +39,6 @@ jobs:
         run: |
           echo "GRAFANA_ADMIN_USER=${{ secrets.STAGING_GRAFANA_ADMIN_USER }}" > .env
           echo "GRAFANA_ADMIN_PASSWORD=${{ secrets.STAGING_GRAFANA_ADMIN_PASSWORD }}" >> .env
-          echo "ME_ADMIN_USER=${{ secrets.STAGING_ME_ADMIN_USER }}" >> .env
-          echo "ME_ADMIN_PASSWORD=${{ secrets.STAGING_ME_ADMIN_PASSWORD }}" >> .env
-          echo "ME_URL=${{ secrets.STAGING_ME_URL }}" >> .env
 
       - name: Copiar .env al servidor
         uses: appleboy/scp-action@master

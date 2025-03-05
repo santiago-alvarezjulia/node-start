@@ -5,20 +5,16 @@ services:
       - "4000:4000"
     restart: unless-stopped # Reinicia si falla
 
-  mongo-express:
-    image: mongo-express:1.0.2-18
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_URL=${ME_URL}
-      - ME_CONFIG_BASICAUTH_USERNAME=${ME_ADMIN_USER}
-      - ME_CONFIG_BASICAUTH_PASSWORD=${ME_ADMIN_PASSWORD}
-
   prometheus:
     image: prom/prometheus:v3.2.1
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.size=1GB"  # Máximo 1GB de datos
+      - "--storage.tsdb.retention.time=7d"  # Solo guarda datos de los últimos 7 días
     ports:
       - "9090:9090"
 
@@ -34,3 +30,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+
+volumes: # Definición de volúmenes
+  prometheus_data:
+  grafana_data:
