@@ -15,11 +15,15 @@ const httpRequestCounter = new promClient.Counter({
 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
   res.on('finish', () => {
     const route = req.route ? req.route.path : req.path; // Obtener la ruta del endpoint
-    httpRequestCounter.inc({
-      method: req.method,
-      route: route,
-      status: res.statusCode.toString(), // Convertir a string para consistencia
-    })
+
+    // Evitar registrar métricas para la ruta /metrics
+    if (route !== '/metrics') {
+      httpRequestCounter.inc({
+        method: req.method,
+        route: route,
+        status: res.statusCode.toString(), // Convertir a string para consistencia
+      })
+    }
   })
   next()
 }

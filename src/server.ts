@@ -1,7 +1,9 @@
-import express from "express"
-import environment from './environment'
+import express, { NextFunction, Request, Response } from "express"
+import environment from './environment/environment'
 import { metricsMiddleware, exposeMetrics } from './metrics/prometheus'
 import mongoose from "mongoose"
+import logger from './logger/winston'
+import path from "path"
 
 const app = express()
 
@@ -16,10 +18,6 @@ app.get('/metrics', exposeMetrics)
 
 app.get("/", (req, res) => {
     res.send(`Hola, TypeScript con Express!`)
-})
-
-app.get('/error', (req, res) => {
-    res.status(500).send('Error simulado')
 })
 
 // Conectar a MongoDB
@@ -59,6 +57,32 @@ app.get('/test', async (req, res) => {
         error: error
       })
     }
+})
+
+// Ruta de ejemplo que lanza un error
+app.get('/error', (req, res) => {
+  throw new Error('Algo salió mal!')
+})
+
+// Ruta de ejemplo que lanza un error
+app.get('/error2', (req, res) => {
+  throw new Error('Algo salió mal 2!')
+})
+
+// Middleware para capturar errores no manejados (debe estar desps de todas las rutas!)
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  logger.error({
+    message: `Error no manejado en ${req.method} ${req.path}`,
+    error: err.message,
+    stack: err.stack, // Stacktrace completo
+    query: req.query,
+    params: req.params,
+    path: req.path
+  })
+
+  res.status(500).json({
+    error: 'Internal Server Error'
+  })
 })
 
 app.listen(environment.port, () => {

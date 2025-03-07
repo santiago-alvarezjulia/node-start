@@ -48,6 +48,7 @@ services:
       - "3001:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning  # Montar provisioning de dashboards y data sources
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
@@ -55,7 +56,24 @@ services:
     depends_on:
       - prometheus
 
+  loki:
+    image: grafana/loki:3.4.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml
+      - loki_data:/loki
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yml
+      - ./logs:/logs # Monta el directorio donde están tus logs
+    command: -config.file=/etc/promtail/promtail-config.yml
+
 volumes: # Definición de volúmenes
   mongo_data:
   prometheus_data:
   grafana_data:
+  loki_data:
