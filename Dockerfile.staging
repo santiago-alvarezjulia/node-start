@@ -7,8 +7,8 @@ WORKDIR /app
 # Copiar package.json y package-lock.json para instalar dependencias primero
 COPY package*.json ./
 
-# Instalar dependencias (solo las de produccion)
-RUN npm install --only=production
+# Instalar dependencias
+RUN npm install
 
 # Copiar el código fuente de la aplicación
 COPY . .
