@@ -53,6 +53,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".env"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Copiar docker-compose al servidor
@@ -63,6 +64,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.staging.yml"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Copiar carpeta prometheus al servidor
@@ -73,6 +75,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "prometheus/"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Copiar carpeta grafana al servidor
@@ -83,6 +86,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "grafana/"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Copiar loki-config.yml al servidor
@@ -93,6 +97,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "loki-config.yml"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Copiar promtail-config.yml al servidor
@@ -103,6 +108,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "promtail-config.yml"
           target: "/home/ec2-user/app"
+          overwrite: true
           debug: true
 
       - name: Conectarse al servidor y actualizar contenedores (instalar docker de ser necesario)
