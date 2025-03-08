@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".env"
-          target: "/home/app"
+          target: "/home/ec2-user/app"
 
       - name: Copiar docker-compose al servidor
         uses: appleboy/scp-action@master
@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.staging.yml"
-          target: "/home/app"
+          target: "/home/ec2-user/app"
 
       - name: Conectarse al servidor y actualizar contenedores (instalar docker de ser necesario)
         uses: appleboy/ssh-action@master
@@ -82,7 +82,7 @@ jobs:
             fi
 
             # Desplegar con docker-compose
-            cd /home/app
+            cd /home/ec2-user/app
             docker pull santiagoaj/node_start:latest
             docker-compose -f docker-compose.staging.yml down
             docker-compose -f docker-compose.staging.yml up -d
