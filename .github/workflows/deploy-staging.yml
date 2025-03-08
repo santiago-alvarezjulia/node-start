@@ -15,12 +15,12 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "PORT=${{ secrets.STAGING_PORT }}" > .env.staging
-          echo "NODE_ENV=${{ secrets.STAGING_NODE_ENV }}" >> .env.staging
-          echo "MONGO_URL=${{ secrets.STAGING_MONGO_URL }}" >> .env.staging
+          echo "PORT=${{ secrets.PORT }}" > .env.staging
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env.staging
+          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env.staging
 
       - name: Loguearse en Docker Hub
-        run: echo "${{ secrets.STAGING_DOCKER_PASSWORD }}" | docker login -u "${{ secrets.STAGING_DOCKER_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Construir la imagen Docker
         run: |
