@@ -74,7 +74,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            rm -rf /home/ec2-user/app/prometheus || true  # Elimina la carpeta si existe, ignora errores si no
+            sudo rm -rf /home/ec2-user/app/prometheus || true  # Elimina la carpeta si existe, ignora errores si no
 
       - name: Copiar carpeta prometheus al servidor
         uses: appleboy/scp-action@master
@@ -94,7 +94,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            rm -rf /home/ec2-user/app/grafana || true  # Elimina la carpeta si existe, ignora errores si no
+            sudo rm -rf /home/ec2-user/app/grafana || true  # Elimina la carpeta si existe, ignora errores si no
 
       - name: Copiar carpeta grafana al servidor
         uses: appleboy/scp-action@master
