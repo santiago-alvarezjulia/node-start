@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
-        
+
       - name: Create .env file
         run: |
           echo "GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}" > .env
@@ -70,11 +70,12 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Instalar Docker si no está presente
+            # Instalar Docker si no está presente (Amazon Linux 2023)
             if ! command -v docker &> /dev/null; then
-              sudo yum update -y
-              sudo amazon-linux-extras install docker -y
-              sudo service docker start
+              sudo dnf update -y
+              sudo dnf install -y docker
+              sudo systemctl start docker
+              sudo systemctl enable docker  # Inicia Docker al arrancar la instancia
               sudo usermod -a -G docker ec2-user
             fi
 
