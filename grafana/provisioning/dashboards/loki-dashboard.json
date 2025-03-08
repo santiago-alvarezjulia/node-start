@@ -24,7 +24,7 @@
       {
         "datasource": {
           "type": "loki",
-          "uid": "deevu4fed3u2oe"
+          "uid": "loki"
         },
         "fieldConfig": {
           "defaults": {},
@@ -53,7 +53,7 @@
           {
             "datasource": {
               "type": "loki",
-              "uid": "deevu4fed3u2oe"
+              "uid": "loki"
             },
             "direction": "backward",
             "editorMode": "code",
@@ -80,7 +80,7 @@
           },
           "datasource": {
             "type": "loki",
-            "uid": "deevu4fed3u2oe"
+            "uid": "loki"
           },
           "definition": "",
           "name": "path",

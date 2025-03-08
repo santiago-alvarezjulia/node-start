@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -137,6 +137,10 @@
             "/"
           ]
         },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "Prometheus"
+        },
         "definition": "label_values(http_requests_total,route)",
         "name": "route",
         "options": [],
@@ -159,6 +163,6 @@
   "timezone": "browser",
   "title": "Codigos de respuestas por servicio",
   "uid": "eeeqtqv4of56oa",
-  "version": 14,
+  "version": 1,
   "weekStart": ""
 }
