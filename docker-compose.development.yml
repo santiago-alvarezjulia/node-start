@@ -4,7 +4,7 @@ services:
       context: . 
       dockerfile: Dockerfile.development # Archivo de configuración de la imagen
     ports: # Mapeo de puertos de la máquina host al contenedor
-      - "3000:3000"
+      - "4000:4000"
     depends_on:
       - mongo
     volumes:
@@ -45,7 +45,7 @@ services:
   grafana:
     image: grafana/grafana:11.5.2
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning  # Montar provisioning de dashboards y data sources
