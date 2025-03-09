@@ -8,6 +8,7 @@ services:
     depends_on:
       - mongo
     volumes:
+      - ./logs:/app/logs  # Mapeo de logs
       - .:/app  # Ajustado para coincidir con WORKDIR /app del Dockerfile para hot reloading
       - /app/node_modules  # Evita sobrescribir node_modules con el volumen
 
