@@ -16,7 +16,7 @@ app.use(metricsMiddleware)
 app.get('/metrics', exposeMetrics)
 
 app.get("/", (req, res) => {
-    res.send(`Hola, TypeScript con Express!`)
+    res.status(200).json({ message: `Hola, TypeScript con Express!` })
 })
 
 // Conectar a MongoDB
