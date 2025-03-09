@@ -1,0 +1,164 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "PORT=${{ secrets.PORT }}" > .env.production
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env.production
+          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env.production
+
+      - name: Loguearse en Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Construir la imagen Docker
+        run: |
+          docker build -f Dockerfile.staging -t santiagoaj/node_start:latest .
+
+      - name: Subir la imagen al registro
+        run: |
+          docker push santiagoaj/node_start:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}" > .env
+          echo "GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}" >> .env
+
+      - name: Copiar .env al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ".env"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Copiar docker-compose al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.production.yml"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Limpiar carpeta prometheus en el servidor
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ec2-user/app/prometheus || true  # Elimina la carpeta si existe, ignora errores si no
+
+      - name: Copiar carpeta prometheus al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "prometheus/"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Limpiar carpeta grafana en el servidor
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ec2-user/app/grafana || true  # Elimina la carpeta si existe, ignora errores si no
+
+      - name: Copiar carpeta grafana al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "grafana/"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Copiar loki-config.yml al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "loki-config.yml"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Copiar promtail-config.yml al servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "promtail-config.yml"
+          target: "/home/ec2-user/app"
+          overwrite: true
+          debug: true
+
+      - name: Conectarse al servidor y actualizar contenedores (instalar docker de ser necesario)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Instalar Docker si no está presente (Amazon Linux 2023)
+            if ! command -v docker &> /dev/null; then
+              sudo dnf update -y
+              sudo dnf install -y docker
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -a -G docker ec2-user
+              # Forzar la aplicación de permisos del grupo en esta sesión
+              newgrp docker || true  # Reasigna el grupo sin cerrar sesión
+            fi
+
+            # Instalar Docker Compose si no está presente
+            if ! command -v docker-compose &> /dev/null; then
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # Verificar permisos de Docker
+            docker info || echo "Docker no está accesible, intentando con sudo"
+
+            # Desplegar con docker-compose
+            cd /home/ec2-user/app
+            docker pull santiagoaj/node_start:latest
+            docker-compose -f docker-compose.production.yml down
+            docker-compose -f docker-compose.production.yml up -d
+            docker image prune -f  # Elimina imágenes antiguas

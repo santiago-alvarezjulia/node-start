@@ -2,8 +2,10 @@ services:
   app:
     image: santiagoaj/node_start:latest # Imagen de la aplicación creada por CI/CD
     ports: # Mapeo de puertos de la máquina host al contenedor
-      - "8080:8080"
+      - "4000:4000"
     restart: unless-stopped # Reinicia si falla
+    volumes:
+    - ./logs:/app/logs  # Mapeo de logs
 
   prometheus:
     image: prom/prometheus:v3.2.1
@@ -21,7 +23,7 @@ services:
   grafana:
     image: grafana/grafana:11.5.2
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning  # Montar provisioning de dashboards y data sources

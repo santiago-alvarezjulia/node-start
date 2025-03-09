@@ -7,8 +7,8 @@ WORKDIR /app
 # Copiar package.json y package-lock.json para instalar dependencias primero
 COPY package*.json ./
 
-# Instalar dependencias (solo las de produccion)
-RUN npm install --only=production
+# Instalar dependencias
+RUN npm install
 
 # Copiar el código fuente de la aplicación
 COPY . .
@@ -29,7 +29,10 @@ COPY --from=builder /app/package*.json ./
 RUN npm install --only=production 
 
 # Copia solo el código compilado de TypeScript
-COPY --from=builder /app/dist ./dist  
+COPY --from=builder /app/dist ./dist
+
+# Copiar el archivo de entorno
+COPY .env.production .env.production
 
 # Define el entorno de ejecución como produccion
 ENV NODE_ENV=production
