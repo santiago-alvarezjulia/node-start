@@ -29,7 +29,10 @@ COPY --from=builder /app/package*.json ./
 RUN npm install --only=production 
 
 # Copia solo el código compilado de TypeScript
-COPY --from=builder /app/dist ./dist  
+COPY --from=builder /app/dist ./dist
+
+# Copiar el archivo de entorno
+COPY .env.staging .env.staging
 
 # Define el entorno de ejecución como staging
 ENV NODE_ENV=staging
