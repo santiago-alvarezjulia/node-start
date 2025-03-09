@@ -3,7 +3,6 @@ import environment from './environment/environment'
 import { metricsMiddleware, exposeMetrics } from './metrics/prometheus'
 import mongoose from "mongoose"
 import logger from './logger/winston'
-import path from "path"
 
 const app = express()
 
@@ -17,7 +16,7 @@ app.use(metricsMiddleware)
 app.get('/metrics', exposeMetrics)
 
 app.get("/", (req, res) => {
-    res.send(`Hola, TypeScript con Express!`)
+    res.status(200).json({ message: `Hola, TypeScript con Express!` })
 })
 
 // Conectar a MongoDB
@@ -86,5 +85,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 })
 
 app.listen(environment.port, () => {
-    console.log(`Servidor corriendo en http://localhost:${environment.port}`)
+    console.log(`Servidor corriendo en http://0.0.0.0:${environment.port}`)
 })

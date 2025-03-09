@@ -1,14 +1,14 @@
-name: Deploy to Staging
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - staging
+      - production
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
 
     steps:
       - name: Checkout código
@@ -16,9 +16,9 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "PORT=${{ secrets.PORT }}" > .env.staging
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env.staging
-          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env.staging
+          echo "PORT=${{ secrets.PORT }}" > .env.production
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env.production
+          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env.production
 
       - name: Loguearse en Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -34,7 +34,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
 
     steps:
       - name: Checkout código
@@ -62,7 +62,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.staging.yml"
+          source: "docker-compose.production.yml"
           target: "/home/ec2-user/app"
           overwrite: true
           debug: true
@@ -159,6 +159,6 @@ jobs:
             # Desplegar con docker-compose
             cd /home/ec2-user/app
             docker pull santiagoaj/node_start:latest
-            docker-compose -f docker-compose.staging.yml down
-            docker-compose -f docker-compose.staging.yml up -d
+            docker-compose -f docker-compose.production.yml down
+            docker-compose -f docker-compose.production.yml up -d
             docker image prune -f  # Elimina imágenes antiguas
