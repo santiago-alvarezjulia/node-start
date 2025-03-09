@@ -156,9 +156,6 @@ jobs:
             # Verificar permisos de Docker
             docker info || echo "Docker no está accesible, intentando con sudo"
 
-            # Actualizar permisos de la carpeta de logs para permitir escritura
-            sudo chmod -R 777 /home/ec2-user/app/logs
-
             # Desplegar con docker-compose
             cd /home/ec2-user/app
             docker pull santiagoaj/node_start:latest
