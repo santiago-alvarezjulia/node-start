@@ -3,7 +3,6 @@ import environment from './environment/environment'
 import { metricsMiddleware, exposeMetrics } from './metrics/prometheus'
 import mongoose from "mongoose"
 import logger from './logger/winston'
-import path from "path"
 
 const app = express()
 
@@ -21,6 +20,7 @@ app.get("/", (req, res) => {
 })
 
 // Conectar a MongoDB
+console.log(`Mongo URL from environment : ${environment.mongoUrl}`)
 mongoose.connect(environment.mongoUrl)
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error de conexión:', err))
@@ -86,5 +86,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 })
 
 app.listen(environment.port, () => {
-    console.log(`Servidor corriendo en http://localhost:${environment.port}`)
+    console.log(`Servidor corriendo en http://0.0.0.0:${environment.port}`)
 })
