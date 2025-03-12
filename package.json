@@ -8,7 +8,7 @@
     "build": "tsc",
     "staging": "node -r dotenv/config dist/server.js dotenv_config_path=.env.staging",
     "production": "node -r dotenv/config dist/server.js dotenv_config_path=.env.production",
-    "test": "jest --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit --coverage"
   },
   "repository": {
     "type": "git",

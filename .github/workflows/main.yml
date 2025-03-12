@@ -16,7 +16,7 @@ jobs:
 
       # Configurar Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.14.0' # Ajusta a la versión que uses
 
