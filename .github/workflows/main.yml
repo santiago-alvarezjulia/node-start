@@ -1,0 +1,31 @@
+name: Main workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Configurar Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.14.0' # Ajusta a la versión que uses
+
+      # Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Correr los tests
+      - name: Run tests
+        run: npm test
+        env:
+          NODE_ENV: test
