@@ -3,8 +3,11 @@ import environment from './environment/environment'
 import { metricsMiddleware, exposeMetrics } from './metrics/prometheus'
 import mongoose from "mongoose"
 import logger from './logger/winston'
+import cors from 'cors';
+import { setupSocket } from "./sockets.io/sockets"
 
 const app = express()
+app.use(cors())
 
 // Middleware para parsear JSON
 app.use(express.json())
@@ -89,5 +92,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const server = app.listen(environment.port, () => {
 	console.log(`Servidor corriendo en http://0.0.0.0:${environment.port}`)
 })
+
+// Vincular Socket.IO al servidor
+setupSocket(server)
 
 export { app, server }
